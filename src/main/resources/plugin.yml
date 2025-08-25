@@ -1,9 +1,0 @@
-name: SoldInBox
-version: 2.0.0
-main: dev.soldinbox.SoldInBox
-api-version: 1.16
-commands:
-  soldinbox:
-    description: Main command for SoldInBox
-    usage: /<command>
-    aliases: [sib]
