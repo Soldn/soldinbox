@@ -1,0 +1,38 @@
+settings:
+  click-cooldown-ms: 200  # анти-спам кликов в инвентаре лутбокса
+  default-respawn-seconds: 300
+
+messages:
+  prefix: "&6[SoldInBox]&r "
+  box-restored: "&aЛутбокс №{id} восстановлен!"
+  box-created: "&aСоздан новый лутбокс №{id}."
+  box-reset-all: "&eВсе лутбоксы сброшены."
+  box-reset-one: "&eЛутбокс №{id} сброшен."
+  reloaded: "&aКонфиг перезагружен."
+  not-found: "&cЛутбокс не найден."
+  not-ready: "&cЭтот лутбокс ещё на перезарядке."
+  editor-title: "Редактор лута: #{id}"
+  open-title: "Лутбокс #{id}"
+
+boxes: {}
+# Пример:
+# boxes:
+#   1:
+#     world: world
+#     x: 100
+#     y: 64
+#     z: 100
+#     respawn-seconds: 300
+#     loot:
+#       - chance: 50
+#         amount: 1
+#         material: DIAMOND_SWORD
+#         name: "&bМеч удачи"
+#         lore:
+#           - "&7Очень острый"
+#       - chance: 30
+#         amount: 3
+#         material: GOLDEN_APPLE
+#       - chance: 20
+#         amount: 1
+#         material: NETHERITE_INGOT
