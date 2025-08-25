@@ -1,0 +1,9 @@
+name: SoldInBox
+version: 3.0.0
+main: dev.soldinbox.SoldInBox
+api-version: 1.16
+commands:
+  soldinbox:
+    description: Основная команда плагина SoldInBox
+    usage: /<command>
+    aliases: [sib]
