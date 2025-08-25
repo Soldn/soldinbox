@@ -18,9 +18,8 @@ jobs:
           cache: 'maven'
       - name: Build with Maven
         run: mvn -B -e -V -DskipTests package
-        working-directory: SoldInBox
       - name: Archive plugin jar
         uses: actions/upload-artifact@v4
         with:
           name: SoldInBox
-          path: SoldInBox/target/SoldInBox-*.jar
+          path: target/SoldInBox-*.jar
