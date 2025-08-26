@@ -1,0 +1,8 @@
+name: SoldInBox
+main: dev.soldinbox.SoldInBox
+version: 4.0.0
+api-version: 1.16
+commands:
+  soldinbox:
+    description: SoldInBox main command
+    usage: /<command> [args]
