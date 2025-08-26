@@ -2,33 +2,26 @@ package dev.soldinbox;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class SoldInBox extends JavaPlugin {
-    private static SoldInBox instance;
+public final class SoldInBox extends JavaPlugin {
     private BoxManager boxManager;
-    private GuiListener guiListener;
 
     @Override
     public void onEnable() {
-        instance = this;
         saveDefaultConfig();
-        // load boxes.yml if not exists
-        getDataFolder().mkdirs();
-        saveResource("boxes.yml", false);
-        this.boxManager = new BoxManager(this);
-        this.guiListener = new GuiListener(this, boxManager);
-        getServer().getPluginManager().registerEvents(guiListener, this);
+        boxManager = new BoxManager(this);
+
+        // Регистрируем слушателей и команды
+        getServer().getPluginManager().registerEvents(new GuiListener(this, boxManager), this);
         getCommand("soldinbox").setExecutor(new CommandHandler(this, boxManager));
-        getLogger().info("SoldInBox v5 enabled");
+
+        // Спавн всех коробок
         boxManager.spawnAll();
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("SoldInBox disabled");
-    }
-
-    public static SoldInBox getInstance() {
-        return instance;
+        // Сохраняем все данные
+        boxManager.saveToFile();
     }
 
     public BoxManager getBoxManager() {
