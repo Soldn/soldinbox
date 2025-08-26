@@ -35,7 +35,9 @@ public class GuiListener implements Listener {
 
     private boolean isEditor(InventoryView view) {
         if (view == null) return false;
-        String title = view.getTitle();
+        Inventory top = view.getTopInventory();
+        if (top == null) return false;
+        String title = top.getTitle(); // Исправлено для 1.20+
         if (title == null) return false;
         String cfgTitle = plugin.getConfig().getString("messages.editor_title", "Редактор");
         return title.startsWith(ChatColor.translateAlternateColorCodes('&', cfgTitle).split(":")[0]);
@@ -61,8 +63,8 @@ public class GuiListener implements Listener {
 
         // Сохранение
         if (slot == 53) {
-            if (view.getTopInventory().getHolder() instanceof BoxData.EditorHolder) {
-                int boxId = Integer.parseInt(view.getTitle().replaceAll("[^0-9]", ""));
+            if (top.getHolder() instanceof BoxData.EditorHolder) {
+                int boxId = Integer.parseInt(top.getTitle().replaceAll("[^0-9]", ""));
                 BoxData box = manager.getBox(boxId);
                 if (box != null) {
                     List<LootEntry> newLoot = new ArrayList<>();
