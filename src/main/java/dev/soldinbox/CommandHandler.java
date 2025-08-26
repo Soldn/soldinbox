@@ -15,46 +15,16 @@ public class CommandHandler implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) { sender.sendMessage("Only player"); return true; }
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (!(sender instanceof Player)) return true;
         Player p = (Player) sender;
-        if (!p.hasPermission("soldinbox.admin")) {
-            p.sendMessage("§cНет прав");
+
+        if (args.length == 2 && args[0].equalsIgnoreCase("edit")) {
+            int id;
+            try { id = Integer.parseInt(args[1]); } catch (NumberFormatException ex) { return true; }
+            manager.openEditor(p, id);
             return true;
         }
-        if (args.length==0) { p.sendMessage("§e/soldinbox reload|reset|resetbox <id>|setbox|edit <id>"); return true; }
-        switch (args[0].toLowerCase()) {
-            case "reload":
-                plugin.reloadConfig();
-                manager.loadFromConfig();
-                p.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("messages.reload")));
-                break;
-            case "reset":
-                manager.resetAll();
-                p.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("messages.box_reset_all")));
-                break;
-            case "resetbox":
-                if (args.length<2) { p.sendMessage("§cУкажи id"); break; }
-                try {
-                    int id = Integer.parseInt(args[1]);
-                    manager.resetBox(id);
-                    p.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("messages.box_reset_one")).replace("{id}", String.valueOf(id)));
-                } catch (NumberFormatException ex) { p.sendMessage("§cНеверный id"); }
-                break;
-            case "setbox":
-                int id = manager.createBoxAt(p.getLocation());
-                p.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("messages.box_created")).replace("{id}", String.valueOf(id)));
-                break;
-            case "edit":
-                if (args.length<2) { p.sendMessage("§cУкажи id"); break; }
-                try {
-                    int eid = Integer.parseInt(args[1]);
-                    manager.openEditor(p, eid);
-                } catch (NumberFormatException ex) { p.sendMessage("§cНеверный id"); }
-                break;
-            default:
-                p.sendMessage("§e/soldinbox reload|reset|resetbox <id>|setbox|edit <id>");
-        }
-        return true;
+        return false;
     }
 }
