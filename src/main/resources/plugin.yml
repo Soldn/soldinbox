@@ -1,0 +1,13 @@
+name: SoldInBox
+main: dev.soldinbox.SoldInBox
+version: 5.0.0
+api-version: 1.16
+author: You
+commands:
+  soldinbox:
+    description: Управление SoldInBox
+    usage: /soldinbox <reload|reset|resetbox|setbox|edit>
+permissions:
+  soldinbox.admin:
+    description: Админские команды
+    default: op
