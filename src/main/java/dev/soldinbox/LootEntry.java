@@ -1,9 +1,9 @@
 package dev.soldinbox;
 
 public class LootEntry {
-    private final String material;
-    private final int amount;
-    private final double chance;
+    private String material;
+    private int amount;
+    private double chance;
 
     public LootEntry(String material, int amount, double chance) {
         this.material = material;
@@ -14,4 +14,6 @@ public class LootEntry {
     public String getMaterial() { return material; }
     public int getAmount() { return amount; }
     public double getChance() { return chance; }
+
+    public void setChance(double chance) { this.chance = chance; }
 }
