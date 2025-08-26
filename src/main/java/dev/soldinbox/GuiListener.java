@@ -14,16 +14,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
-/**
- * Listener for the editor GUI.
- * - Save button at slot 53 (index 53)
- * - Cancel button at slot 52 (index 52)
- * - Chance editing:
- *     Shift + LClick -> +10
- *     LClick         -> +1
- *     Shift + RClick -> -10
- *     RClick         -> -1
- */
 public class GuiListener implements Listener {
     private final SoldInBox plugin;
     private final BoxManager manager;
@@ -48,9 +38,7 @@ public class GuiListener implements Listener {
         String title = view.getTitle();
         if (title == null) return false;
         String cfgTitle = plugin.getConfig().getString("messages.editor_title", "Редактор");
-        // compare by prefix before ":" to allow dynamic "{id}" suffix in config
-        String prefix = ChatColor.translateAlternateColorCodes('&', cfgTitle).split(":")[0];
-        return title.startsWith(prefix);
+        return title.startsWith(ChatColor.translateAlternateColorCodes('&', cfgTitle).split(":")[0]);
     }
 
     @EventHandler
@@ -60,65 +48,56 @@ public class GuiListener implements Listener {
         InventoryView view = e.getView();
         if (!isEditor(view)) return;
 
-        // prevent default behavior in editor
         e.setCancelled(true);
-
         if (tooFast(p.getUniqueId())) {
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("messages.click_too_fast")));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                    plugin.getConfig().getString("messages.click_too_fast")));
             return;
         }
 
         int slot = e.getRawSlot();
-        ItemStack current = e.getCurrentItem();
-
-        // Top inventory refers to the editor inventory
         Inventory top = view.getTopInventory();
         if (top == null) return;
 
-        // Save button (index 53), Cancel (index 52)
+        // Сохранение
         if (slot == 53) {
-            if (top.getHolder() instanceof BoxData.EditorHolder holder) {
-                int boxId = holder.boxId;
-                List<LootEntry> newLoot = new ArrayList<>();
-                for (ItemStack it : top.getContents()) {
-                    if (it == null) continue;
-                    // skip UI buttons
-                    if (it.getType() == Material.EMERALD || it.getType() == Material.RED_WOOL) continue;
-                    int amount = it.getAmount();
-                    double chance = 10.0;
-                    if (it.hasItemMeta() && it.getItemMeta().hasLore()) {
-                        for (String line : it.getItemMeta().getLore()) {
-                            String s = ChatColor.stripColor(line).toLowerCase(Locale.ROOT);
-                            if (s.startsWith("шанс:") || s.startsWith("chance:")) {
-                                String num = s.replaceAll("[^0-9.,]", "").replace(',', '.');
-                                try {
-                                    chance = Double.parseDouble(num);
-                                } catch (Exception ignored) {}
-                            }
-                        }
-                    }
-                    newLoot.add(new LootEntry(it.getType().name(), amount, chance));
-                }
+            if (view.getTopInventory().getHolder() instanceof BoxData.EditorHolder) {
+                int boxId = Integer.parseInt(view.getTitle().replaceAll("[^0-9]", ""));
                 BoxData box = manager.getBox(boxId);
                 if (box != null) {
+                    List<LootEntry> newLoot = new ArrayList<>();
+                    for (ItemStack it : top.getContents()) {
+                        if (it == null || it.getType() == Material.AIR) continue;
+                        double chance = 10.0;
+                        if (it.hasItemMeta() && it.getItemMeta().hasLore()) {
+                            for (String line : it.getItemMeta().getLore()) {
+                                String s = ChatColor.stripColor(line).toLowerCase(Locale.ROOT);
+                                if (s.startsWith("шанс:")) {
+                                    String num = s.replaceAll("[^0-9.,]", "").replace(',', '.');
+                                    try { chance = Double.parseDouble(num); } catch (Exception ignored) {}
+                                }
+                            }
+                        }
+                        newLoot.add(new LootEntry(it.getType().name(), it.getAmount(), chance));
+                    }
                     box.setLoot(newLoot);
                     manager.saveToFile();
-                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("messages.reload")));
+                    p.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                            plugin.getConfig().getString("messages.reload")));
                 }
             }
             p.closeInventory();
             return;
-        } else if (slot == 52) { // Cancel
+        } else if (slot == 52) { // Отмена
             p.closeInventory();
             return;
         }
 
-        // Editing chances only in top inventory area (avoid player inventory)
+        // Изменение шанса
         if (slot >= top.getSize()) return;
-        if (current == null) return;
-        if (!(top.getHolder() instanceof BoxData.EditorHolder)) return;
+        ItemStack current = top.getItem(slot);
+        if (current == null || current.getType() == Material.AIR) return;
 
-        // Determine delta by click type
         int delta = 0;
         if (e.isLeftClick() && e.isShiftClick()) delta = 10;
         else if (e.isLeftClick()) delta = 1;
@@ -133,7 +112,7 @@ public class GuiListener implements Listener {
         boolean found = false;
         for (int i = 0; i < lore.size(); i++) {
             String line = ChatColor.stripColor(lore.get(i)).toLowerCase(Locale.ROOT);
-            if (line.startsWith("шанс:") || line.startsWith("chance:")) {
+            if (line.startsWith("шанс:")) {
                 String num = line.replaceAll("[^0-9.,]", "").replace(',', '.');
                 try { chance = Double.parseDouble(num); } catch (Exception ignored) {}
                 chance = Math.max(0.0, Math.min(100.0, chance + delta));
@@ -149,15 +128,11 @@ public class GuiListener implements Listener {
         if (meta == null) meta = current.getItemMeta();
         meta.setLore(lore);
         current.setItemMeta(meta);
-
-        // write back to top inventory slot (raw slot corresponds to top inventory)
         top.setItem(slot, current);
     }
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent e) {
-        InventoryView view = e.getView();
-        if (!isEditor(view)) return;
-        // we only save on explicit Save button, so do nothing here
+        // Сохраняем только по кнопке Сохранить
     }
 }
